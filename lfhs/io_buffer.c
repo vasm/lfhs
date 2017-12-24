@@ -81,18 +81,20 @@ int io_buffer_read_data(io_buffer* buf, size_t data_size, void* dest, size_t* by
     safe_enter;
     assert(dest);
     
-    size_t _bytes_written = buf->data_length < data_size ? buf->data_length : data_size; //MIN(buf_len, data_size);
-    *bytes_written = _bytes_written;
+    size_t actual_bytes_written = buf->data_length < data_size ? buf->data_length : data_size;  // MIN(buf_len, data_size);
+    *bytes_written = actual_bytes_written;
     
-    if (buf->data_start + _bytes_written > buf->size) {
-        memcpy(dest, buf->data + buf->data_start, buf->size - _bytes_written);
-        memcpy(dest + buf->size - buf->data_start, buf->data, _bytes_written - (buf->size - buf->data_start));
-        buf->data_start = _bytes_written - (buf->size - buf->data_start);
+    // should we read the data as two blocks?
+    if (buf->data_start + actual_bytes_written > buf->size) {
+        size_t first_block_size = buf->size - buf->data_start;
+        memcpy(dest, buf->data + buf->data_start, first_block_size);
+        memcpy(dest + first_block_size, buf->data, actual_bytes_written - first_block_size);
     } else {
-        memcpy(dest, buf->data + buf->data_start, _bytes_written);
+        memcpy(dest, buf->data + buf->data_start, actual_bytes_written);
     }
     
-    buf->data_length -= _bytes_written;
+    buf->data_start = (buf->data_start + actual_bytes_written) % buf->size;
+    buf->data_length -= actual_bytes_written;
     
     safe_return(e_io_buffer_no_error);
 }
