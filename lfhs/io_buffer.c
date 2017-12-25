@@ -53,6 +53,16 @@ int io_buffer_init(io_buffer* buf)
 }
 
 
+int io_buffer_free(io_buffer* buf)
+{
+    safe_enter;
+    free(buf->data);
+    pthread_mutex_unlock(&buf->mutex);
+    pthread_mutex_destroy(&buf->mutex);
+    return 0;
+}
+
+
 int io_buffer_resize(io_buffer* buf, size_t new_size)
 {
     safe_enter;
@@ -64,13 +74,14 @@ int io_buffer_resize(io_buffer* buf, size_t new_size)
     void* new_data = malloc(new_size);
     memset(new_data, 0, new_size);
     size_t bytes_written;
+    size_t data_length = buf->data_length;
     io_buffer_read_data(buf, buf->data_length, new_data, &bytes_written);
     buf->data_start = 0;
     buf->size = new_size;
+    buf->data_length = data_length;
     
     free(buf->data);
     buf->data = new_data;
-    
     
     safe_return(e_io_buffer_no_error);
 }
@@ -82,19 +93,30 @@ int io_buffer_read_data(io_buffer* buf, size_t data_size, void* dest, size_t* by
     assert(dest);
     
     size_t actual_bytes_written = buf->data_length < data_size ? buf->data_length : data_size;  // MIN(buf_len, data_size);
-    *bytes_written = actual_bytes_written;
+    
+    if (bytes_written != NULL)
+        *bytes_written = actual_bytes_written;
     
     // should we read the data as two blocks?
     if (buf->data_start + actual_bytes_written > buf->size) {
         size_t first_block_size = buf->size - buf->data_start;
-        memcpy(dest, buf->data + buf->data_start, first_block_size);
-        memcpy(dest + first_block_size, buf->data, actual_bytes_written - first_block_size);
+        memcpy(dest,
+               buf->data + buf->data_start,
+               first_block_size);
+        
+        memcpy(dest + first_block_size,
+               buf->data,
+               actual_bytes_written - first_block_size);
     } else {
         memcpy(dest, buf->data + buf->data_start, actual_bytes_written);
     }
     
-    buf->data_start = (buf->data_start + actual_bytes_written) % buf->size;
     buf->data_length -= actual_bytes_written;
+    
+    if (buf->data_length == 0)
+        buf->data_start = 0;
+    else
+        buf->data_start = (buf->data_start + actual_bytes_written) % buf->size;
     
     safe_return(e_io_buffer_no_error);
 }
@@ -110,6 +132,25 @@ int io_buffer_write_data(io_buffer* buf, void* data, size_t length)
         if (retcode != e_io_buffer_no_error)
             safe_return(retcode);
     }
+    
+    // should we write the data as two blocks?
+    if (buf->data_start + buf->data_length + length > buf->size) {
+        size_t first_block_size = buf->size - buf->data_start - buf->data_length;
+        
+        memcpy(buf->data + buf->data_start + buf->data_length,
+               data,
+               first_block_size);
+        
+        memcpy(buf->data,
+               data + first_block_size,
+               length - first_block_size);
+    } else {
+        memcpy(buf->data + buf->data_start + buf->data_length,
+               data,
+               length);
+    }
+    
+    buf->data_length += length;
     
     safe_return(e_io_buffer_no_error);
 }

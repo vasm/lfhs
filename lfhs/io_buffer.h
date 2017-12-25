@@ -24,6 +24,7 @@ typedef struct _io_buffer
 } io_buffer;
 
 int io_buffer_init(io_buffer* buf);
+int io_buffer_free(io_buffer* buf);
 
 // copy data from some memory block into the buffer
 int io_buffer_write_data(io_buffer* buf, void* data, size_t length);

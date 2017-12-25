@@ -46,17 +46,41 @@ int run_tests()
     if (io_buffer_init(&buf) != e_io_buffer_no_error)
         return 1;
     
-    char* test = "test";
-    memcpy(buf.data, test, strlen(test));
-    buf.data_length = strlen(test);
+    const size_t ln = 1010, sn = 10;
+    char longstring[ln];
+    char* shortstring = "0123456789";
     
+    char longbuf[ln + 1] = {0}, shortbuf[sn + 1] = {0};
     
-    return 0;
+    for (size_t i = 0; i < ln; ++i)
+        longstring[i] = (i % 128 == 0) ? '|' : (i % 8 == 0) ? '.' : ' ';
+    
+    io_buffer_write_data(&buf, longstring, ln);
+    
+    io_buffer_read_data(&buf, sn, shortbuf, NULL);
+    //printf("%s %zu %zu\n", shortbuf, buf.data_start, buf.data_length);
+    
+    io_buffer_write_data(&buf, shortstring, sn);
+    
+    io_buffer_read_data(&buf, ln, longbuf, NULL);
+    // printf("%s %zu %zu\n", longbuf, buf.data_start, buf.data_length);
+    
+    io_buffer_write_data(&buf, longstring, ln);
+    
+    io_buffer_read_data(&buf, ln, longbuf, NULL);
+    // printf("%s %zu %zu\n", longbuf, buf.data_start, buf.data_length);
+    
+    int cmp = strcmp(longstring, longbuf);
+    printf("%s \n", cmp == 0 ? "ok" : "fail");
+    
+    io_buffer_free(&buf);
+    return cmp;
 }
 
 int main (int argc, char *argv[])
 {
     run_tests();
+    return 0;
     
     int    i, len, rc, on = 1;
     int    listen_sd, max_sd, new_sd;
