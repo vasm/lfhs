@@ -1,13 +1,13 @@
 //
 //  io_buffer.c
-//
 //  lfhs: lightning-fast http server
 //
-//  Created by Vasiliy Sabadazh on 12.12.2017.
-//  Copyleft 2017 Vasiliy Sabadazh. All rights are granted.
+//  Created by Vasiliy Sabadazh on 11/05/2018.
+//  Copyleft 2018 Vasiliy Sabadazh. All rights reserved.
 //
 
 #include "io_buffer.h"
+#include "error.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -27,11 +27,6 @@ static const size_t c_io_buffer_default_size = 1024;
 #define safe_return(val) {pthread_mutex_unlock(&buf->mutex); return val;}
 
 
-bool is_wrapped(io_buffer *buf) {
-    return buf->data_start + buf->data_length > buf->size;
-}
-
-
 int io_buffer_init(io_buffer* buf)
 {
     assert(buf);
@@ -40,12 +35,14 @@ int io_buffer_init(io_buffer* buf)
     pthread_mutex_init(&buf->mutex, &mutex_attr);
     pthread_mutex_lock(&buf->mutex);
     
+    if (buf->size != 0)
+        free(buf->data);
+    
     buf->size = c_io_buffer_default_size;
     buf->data = malloc(c_io_buffer_default_size);
     if (buf->data == NULL)
         safe_return(e_io_buffer_alloc_failed);
     
-    buf->data_start = 0;
     buf->data_length = 0;
     memset(buf->data, 0, c_io_buffer_default_size);
     
@@ -59,7 +56,9 @@ int io_buffer_free(io_buffer* buf)
     free(buf->data);
     pthread_mutex_unlock(&buf->mutex);
     pthread_mutex_destroy(&buf->mutex);
-    return 0;
+    buf->data_length = 0;
+    buf->size = 0;
+    return e_io_buffer_no_error;
 }
 
 
@@ -71,17 +70,7 @@ int io_buffer_resize(io_buffer* buf, size_t new_size)
     if (new_size < buf->data_length)
         safe_return(e_io_buffer_cannot_shrink);
     
-    void* new_data = malloc(new_size);
-    memset(new_data, 0, new_size);
-    size_t bytes_written;
-    size_t data_length = buf->data_length;
-    io_buffer_read_data(buf, buf->data_length, new_data, &bytes_written);
-    buf->data_start = 0;
-    buf->size = new_size;
-    buf->data_length = data_length;
-    
-    free(buf->data);
-    buf->data = new_data;
+    assert(!"TODO");
     
     safe_return(e_io_buffer_no_error);
 }
@@ -91,33 +80,7 @@ int io_buffer_read_data(io_buffer* buf, size_t data_size, void* dest, size_t* by
 {
     safe_enter;
     assert(dest);
-    
-    size_t actual_bytes_written = buf->data_length < data_size ? buf->data_length : data_size;  // MIN(buf_len, data_size);
-    
-    if (bytes_written != NULL)
-        *bytes_written = actual_bytes_written;
-    
-    // should we read the data as two blocks?
-    if (buf->data_start + actual_bytes_written > buf->size) {
-        size_t first_block_size = buf->size - buf->data_start;
-        memcpy(dest,
-               buf->data + buf->data_start,
-               first_block_size);
-        
-        memcpy(dest + first_block_size,
-               buf->data,
-               actual_bytes_written - first_block_size);
-    } else {
-        memcpy(dest, buf->data + buf->data_start, actual_bytes_written);
-    }
-    
-    buf->data_length -= actual_bytes_written;
-    
-    if (buf->data_length == 0)
-        buf->data_start = 0;
-    else
-        buf->data_start = (buf->data_start + actual_bytes_written) % buf->size;
-    
+    assert(!"TODO");
     safe_return(e_io_buffer_no_error);
 }
 
@@ -125,33 +88,14 @@ int io_buffer_read_data(io_buffer* buf, size_t data_size, void* dest, size_t* by
 int io_buffer_write_data(io_buffer* buf, void* data, size_t length)
 {
     safe_enter;
-    
-    size_t new_datasize = length + buf->data_length;
-    if (new_datasize > buf->size) {
-        int retcode = io_buffer_resize(buf, new_datasize);
-        if (retcode != e_io_buffer_no_error)
-            safe_return(retcode);
-    }
-    
-    // should we write the data as two blocks?
-    if (buf->data_start + buf->data_length + length > buf->size) {
-        size_t first_block_size = buf->size - buf->data_start - buf->data_length;
-        
-        memcpy(buf->data + buf->data_start + buf->data_length,
-               data,
-               first_block_size);
-        
-        memcpy(buf->data,
-               data + first_block_size,
-               length - first_block_size);
-    } else {
-        memcpy(buf->data + buf->data_start + buf->data_length,
-               data,
-               length);
-    }
-    
-    buf->data_length += length;
-    
+    assert(data);
+    assert(!"TODO");
     safe_return(e_io_buffer_no_error);
 }
 
+size_t io_buffer_get_data_length(io_buffer* buf)
+{
+    safe_enter;
+    size_t res = buf->data_length;
+    safe_return(res);
+}

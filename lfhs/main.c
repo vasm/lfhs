@@ -17,6 +17,7 @@
 #include <netinet/in.h>
 #include <errno.h>
 
+#include "error.h"
 #include "io_buffer.h"
 
 #define SERVER_PORT  12345
@@ -24,21 +25,7 @@
 #define TRUE             1
 #define FALSE            0
 
-struct io_socket_state {
-    int fd;
-    io_buffer buf;
-};
 
-enum io_socket_cmd {
-    io_socket_cmd_read = 0,
-    io_socket_cmd_read_until = 1,
-    io_socket_cmd_write = 2
-};
-
-int async_command()
-{
-    return 0;
-}
 
 int run_tests()
 {
