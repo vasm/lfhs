@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5DA49ECE20A5063700812393 /* io_buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 5DA49ECD20A5063700812393 /* io_buffer.c */; };
+		5D05A80320E15083001169C8 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D05A80220E15083001169C8 /* libglib-2.0.0.dylib */; };
 		5DC9EBA91FDFE84C00AD6659 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 5DC9EBA81FDFE84C00AD6659 /* main.c */; };
 		5DC9EBB21FE03DBB00AD6659 /* io_ring_buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 5DC9EBB11FE03DBB00AD6659 /* io_ring_buffer.c */; };
 		5DF0661F1FF533660070B181 /* io_async_socket.c in Sources */ = {isa = PBXBuildFile; fileRef = 5DF0661E1FF533660070B181 /* io_async_socket.c */; };
@@ -29,6 +30,7 @@
 		5DA49ECB209E364200812393 /* io_buffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = io_buffer.h; sourceTree = "<group>"; };
 		5DA49ECC209E36DA00812393 /* error.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		5DA49ECD20A5063700812393 /* io_buffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = io_buffer.c; sourceTree = "<group>"; };
+		5D05A80220E15083001169C8 /* libglib-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libglib-2.0.0.dylib"; path = "../../../usr/local/Cellar/glib/2.56.1/lib/libglib-2.0.0.dylib"; sourceTree = "<group>"; };
 		5DC9EBA51FDFE84C00AD6659 /* lfhs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lfhs; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DC9EBA81FDFE84C00AD6659 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		5DC9EBB01FE03A0500AD6659 /* io_ring_buffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = io_ring_buffer.h; sourceTree = "<group>"; };
@@ -42,17 +44,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D05A80320E15083001169C8 /* libglib-2.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5D05A80120E15082001169C8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5D05A80220E15083001169C8 /* libglib-2.0.0.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		5DC9EB9C1FDFE84C00AD6659 = {
 			isa = PBXGroup;
 			children = (
 				5DC9EBA71FDFE84C00AD6659 /* lfhs */,
 				5DC9EBA61FDFE84C00AD6659 /* Products */,
+				5D05A80120E15082001169C8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -253,6 +265,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					"/usr/local/include/glib-2.0/",
+					"/usr/local/lib/glib-2.0/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/glib/2.56.1/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -261,6 +281,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					"/usr/local/include/glib-2.0/",
+					"/usr/local/lib/glib-2.0/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/glib/2.56.1/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

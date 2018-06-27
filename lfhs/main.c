@@ -18,12 +18,14 @@
 #include <errno.h>
 
 #include "error.h"
+#include <glib.h>
+
 #include "io_buffer.h"
 
 #define SERVER_PORT  12345
 
-#define TRUE             1
-#define FALSE            0
+//#define TRUE             1
+//define FALSE            0
 
 
 
@@ -66,8 +68,14 @@ int run_tests()
 
 int main (int argc, char *argv[])
 {
-    run_tests();
-    return 0;
+    // run_tests();
+    //return 0;
+    
+    GMainContext* main_context = g_main_context_new();
+    g_assert(main_context != NULL);
+    printf("Create main loop \n");
+    GMainLoop* main_loop = g_main_loop_new(main_context, TRUE);
+    printf("Created main loop \n");
     
     int    i, len, rc, on = 1;
     int    listen_sd, max_sd, new_sd;
