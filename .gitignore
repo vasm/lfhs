@@ -1,4 +1,6 @@
 lfhs.xcodeproj/project.xcworkspace/
 lfhs.xcodeproj/xcuserdata/
 *~
+*.pro.user
+bin
 

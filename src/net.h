@@ -6,12 +6,14 @@
  */
 
 
-#ifdef __unix__ // we're good
+#if (defined (__unix__) || defined(__APPLE__)) // we're good
     #define POSIX
     #include <sys/ioctl.h>
     #include <sys/socket.h>
     #include <sys/time.h>
     #include <netinet/in.h>
+    #include <unistd.h>
+
 
     typedef int socket_t;
     typedef int ioctlarg_t;
@@ -36,6 +38,6 @@
     #error "Compiling on unknown platform"
 #endif
 
-
+enum net_bool { FALSE = 0, TRUE = 1 };
 
 #endif // NET_H
